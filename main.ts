@@ -25,39 +25,82 @@ function DRIVE () {
     basic.pause(800)
     maqueen.motorStop(maqueen.Motors.All)
 }
-let strip = neopixel.create(DigitalPin.P15, 24, NeoPixelMode.RGB)
-music.playTone(262, music.beat(BeatFraction.Whole))
-let safety = 42
-maqueen.motorStop(maqueen.Motors.All)
-strip.showColor(neopixel.colors(NeoPixelColors.Indigo))
-basic.pause(100)
-let TURN_ANGLE = 175
-if (maqueen.Ultrasonic(PingUnit.Centimeters) <= 10) {
-    strip.showColor(neopixel.colors(NeoPixelColors.Yellow))
-    TURN_RIGHT(TURN_ANGLE)
-    if (maqueen.Ultrasonic(PingUnit.Centimeters) >= 20) {
-        DRIVE()
-        TURN_LEFT(TURN_ANGLE)
-        DRIVE()
-        TURN_LEFT(TURN_ANGLE)
-        if (maqueen.Ultrasonic(PingUnit.Centimeters) >= 10) {
-            TURN_RIGHT(TURN_ANGLE)
+let TURN_ANGLE = 0
+let safety = 0
+let strip: neopixel.Strip = null
+if ((0 as any) == (1 as any)) {
+    strip = neopixel.create(DigitalPin.P15, 24, NeoPixelMode.RGB)
+    music.playTone(262, music.beat(BeatFraction.Whole))
+    safety = 42
+    maqueen.motorStop(maqueen.Motors.All)
+    strip.showColor(neopixel.colors(NeoPixelColors.Indigo))
+    basic.pause(100)
+    TURN_ANGLE = 175
+    if (maqueen.Ultrasonic(PingUnit.Centimeters) <= 10) {
+        strip.showColor(neopixel.colors(NeoPixelColors.Yellow))
+        TURN_RIGHT(TURN_ANGLE)
+        if (maqueen.Ultrasonic(PingUnit.Centimeters) >= 20) {
+            DRIVE()
+            TURN_LEFT(TURN_ANGLE)
             DRIVE()
             TURN_LEFT(TURN_ANGLE)
             if (maqueen.Ultrasonic(PingUnit.Centimeters) >= 10) {
                 TURN_RIGHT(TURN_ANGLE)
                 DRIVE()
                 TURN_LEFT(TURN_ANGLE)
+                if (maqueen.Ultrasonic(PingUnit.Centimeters) >= 10) {
+                    TURN_RIGHT(TURN_ANGLE)
+                    DRIVE()
+                    TURN_LEFT(TURN_ANGLE)
+                } else {
+                    BACK_TO_LINE(TURN_ANGLE)
+                }
             } else {
                 BACK_TO_LINE(TURN_ANGLE)
             }
         } else {
-            BACK_TO_LINE(TURN_ANGLE)
+            TURN_LEFT(TURN_ANGLE)
         }
-    } else {
-        TURN_LEFT(TURN_ANGLE)
     }
 }
+basic.forever(function () {
+    if (maqueen.Ultrasonic(PingUnit.Centimeters) <= 10) {
+        strip.showColor(neopixel.colors(NeoPixelColors.Yellow))
+        TURN_RIGHT(TURN_ANGLE)
+        if (maqueen.Ultrasonic(PingUnit.Centimeters) >= 20) {
+            DRIVE()
+            TURN_LEFT(TURN_ANGLE)
+            DRIVE()
+            TURN_LEFT(TURN_ANGLE)
+            if (maqueen.Ultrasonic(PingUnit.Centimeters) >= 10) {
+                TURN_RIGHT(TURN_ANGLE)
+                DRIVE()
+                TURN_LEFT(TURN_ANGLE)
+                if (maqueen.Ultrasonic(PingUnit.Centimeters) >= 10) {
+                    TURN_RIGHT(TURN_ANGLE)
+                    DRIVE()
+                    TURN_LEFT(TURN_ANGLE)
+                } else {
+                    BACK_TO_LINE(TURN_ANGLE)
+                }
+            } else {
+                BACK_TO_LINE(TURN_ANGLE)
+            }
+        } else {
+            TURN_LEFT(TURN_ANGLE)
+        }
+    } else {
+        if (!(maqueen.readPatrol(maqueen.Patrol.PatrolLeft) == 0 && maqueen.readPatrol(maqueen.Patrol.PatrolRight) == 0)) {
+            if (maqueen.readPatrol(maqueen.Patrol.PatrolLeft) == 1) {
+                maqueen.motorStop(maqueen.Motors.M2)
+            } else if (maqueen.readPatrol(maqueen.Patrol.PatrolRight) == 1) {
+                maqueen.motorStop(maqueen.Motors.M1)
+            }
+        } else {
+            maqueen.motorRun(maqueen.Motors.All, maqueen.Dir.CW, 100)
+        }
+    }
+})
 basic.forever(function () {
     if ((1 as any) == (0 as any)) {
         // Umfahrungsmanöver, wenn etwas im Weg ist
